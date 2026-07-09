@@ -6,25 +6,14 @@ export async function POST(request) {
     let prompt = "";
 
     if (action === "generate_questions") {
-      prompt = `Based on this job description, generate exactly 5 interview questions.
-Return ONLY a JSON array of 5 strings. No markdown, no backticks, no extra text.
-Job Description: ${jobDesc}`;
+      prompt = `Based on this job description, generate exactly 5 interview questions. Return ONLY a JSON array of 5 strings. No markdown, no backticks, no extra text. Job Description: ${jobDesc}`;
     } else if (action === "evaluate_answer") {
-      prompt = `Evaluate this interview answer.
-Return ONLY a raw JSON object with exactly two fields:
-- "score": integer from 1 to 10
-- "feedback": 2-3 sentences of specific, actionable feedback
-No markdown, no backticks, no extra text.
-Job Description: ${jobDesc}
-Question: ${question}
-Answer: ${answer}`;
+      prompt = `Evaluate this interview answer. Return ONLY a raw JSON object with exactly two fields: "score" (integer 1-10) and "feedback" (2-3 sentences). No markdown, no backticks. Job Description: ${jobDesc} Question: ${question} Answer: ${answer}`;
     } else if (action === "generate_summary") {
       const qa = questionsAndAnswers
         .map((item, i) => `Q${i+1}: ${item.question}\nAnswer: ${item.answer}\nScore: ${item.score}/10`)
         .join("\n\n");
-      prompt = `Based on these mock interview Q&As, write a 3-paragraph coaching summary.
-Paragraph 1: Overall performance. Paragraph 2: Key strengths. Paragraph 3: Areas to improve.
-Plain text only, no markdown. ${qa}`;
+      prompt = `Write a 3-paragraph interview coaching summary. Paragraph 1: Overall performance. Paragraph 2: Key strengths. Paragraph 3: Areas to improve. Plain text only. ${qa}`;
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
