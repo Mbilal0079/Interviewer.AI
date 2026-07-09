@@ -4,7 +4,6 @@ export async function POST(request) {
       await request.json();
 
     const key = process.env.OPENROUTER_API_KEY;
-    
     if (!key) {
       return Response.json({ error: "API key missing" }, { status: 500 });
     }
@@ -35,13 +34,16 @@ export async function POST(request) {
       })
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("OpenRouter error:", response.status, errText);
-      return Response.json({ error: `OpenRouter error: ${response.status} - ${errText}` }, { status: 500 });
+    const data = await response.json();
+    
+    // Log full response to debug
+    console.log("OpenRouter response:", JSON.stringify(data));
+
+    if (!response.ok || !data.choices || !data.choices[0]) {
+      console.error("Bad response:", JSON.stringify(data));
+      return Response.json({ error: "Bad API response: " + JSON.stringify(data) }, { status: 500 });
     }
 
-    const data = await response.json();
     const text = data.choices[0].message.content;
     return Response.json({ result: text });
 
